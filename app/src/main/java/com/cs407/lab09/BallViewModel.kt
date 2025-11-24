@@ -41,7 +41,6 @@ class BallViewModel : ViewModel() {
      * Called by the SensorEventListener in the UI.
      */
     fun onSensorDataChanged(event: SensorEvent) {
-        // Ensure ball is initialized
         val currentBall = ball ?: return
 
         if (event.sensor.type == Sensor.TYPE_GRAVITY) {
@@ -50,28 +49,22 @@ class BallViewModel : ViewModel() {
                 val NS2S = 1.0f / 1_000_000_000.0f
                 val dT = (event.timestamp - lastTimestamp) * NS2S
 
+                val scale = 40f
 
-                val rawX = event.values[0]
-                val rawY = event.values[1]
+                val xAcc = -event.values[0] * scale
+                val yAcc =  event.values[1] * scale
 
+                currentBall.updatePositionAndVelocity(xAcc, yAcc, dT)
 
-
-                val xAcc = rawX
-                val yAcc = -rawY
-
-                currentBall.updatePositionAndVelocity(
-                    xAcc = xAcc,
-                    yAcc = yAcc,
-                    dT = dT
-                )
-                _ballPosition.update { Offset(currentBall.posX, currentBall.posY) }
+                _ballPosition.update {
+                    Offset(currentBall.posX, currentBall.posY)
+                }
             }
 
-            // TODO: Update the lastTimestamp
-            // lastTimestamp = ...
             lastTimestamp = event.timestamp
         }
     }
+
 
     fun reset() {
         // TODO: Reset the ball's state
